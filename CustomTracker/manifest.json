@@ -6,5 +6,5 @@
   "UniqueID": "Esca.CustomTracker",
   "EntryDll": "CustomTracker.dll",
   "MinimumApiVersion": "2.10.0",
-  "UpdateKeys": []
+  "UpdateKeys": ["Nexus:5108", "GitHub:Esca-MMC/CustomTracker", "ModDrop:706059"]
 }
