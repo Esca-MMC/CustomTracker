@@ -13,7 +13,14 @@ namespace CustomTracker
     /// <summary>The mod entry point.</summary>
     public class ModEntry : Mod
     {
+        /// <summary>The mod's config.json settings.</summary>
         ModConfig MConfig = null;
+
+        /// <summary>The "address" of the custom tracker's texture in Stardew's content manager.</summary>
+        string TrackerLoadString = "LooseSprites\\CustomTracker";
+
+        /// <summary>If true, the custom tracker's image couldn't be loaded. Used to avoid repeating checks and error messages.</summary>
+        bool FailedToLoadTracker = false;
 
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
@@ -62,13 +69,24 @@ namespace CustomTracker
             Texture2D spritesheet;
             Rectangle spriteSource;
 
-            if (forageIcon)
+            if (forageIcon || FailedToLoadTracker) //if forage icons are enabled OR the tracker has failed to load
             {
                 spritesheet = Game1.objectSpriteSheet; //get the object spritesheet
             }
             else
             {
-                spritesheet = Game1.content.Load<Texture2D>("LooseSprites\\CustomTracker"); //load the custom tracker spritesheet
+                try
+                {
+                    spritesheet = Game1.content.Load<Texture2D>(TrackerLoadString); //load the custom tracker spritesheet
+                }
+                catch (Exception ex)
+                {
+                    FailedToLoadTracker = true;
+                    Monitor.Log($"Failed to load the custom tracker texture \"{TrackerLoadString}\". There may be a problem with the Content Patcher pack or its settings.", LogLevel.Warn);
+                    Monitor.Log($"Forage icons will be displayed instead. Original error message:", LogLevel.Warn);
+                    Monitor.Log($"{ex.Message}", LogLevel.Warn);
+                    return;
+                }
             }
 
             //define the tracker's rendering geometry
@@ -86,7 +104,7 @@ namespace CustomTracker
             {
                 if (((bool)((NetFieldBase<bool, NetBool>)pair.Value.isSpawnedObject) || pair.Value.ParentSheetIndex == 590) && !Utility.isOnScreen(pair.Key * 64f + new Vector2(32f, 32f), 64))
                 {
-                    if (forageIcon) //if this is rendering forage icons
+                    if (forageIcon || FailedToLoadTracker) //if this is rendering forage icons
                     {
                         spriteSource = GameLocation.getSourceRectForObject(pair.Value.ParentSheetIndex); //get this object's spritesheet source rectangle
                     }
