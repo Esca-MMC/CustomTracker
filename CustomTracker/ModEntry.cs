@@ -37,20 +37,23 @@ namespace CustomTracker
         /// <summary>Tasks performed before rendering the HUD.</summary>
         private void Display_RenderingHud(object sender, RenderingHudEventArgs e)
         {
-            RenderCustomTracker(MConfig.ReplaceTrackerWithForageIcon);
+            RenderCustomTracker(MConfig.ReplaceTrackersWithForageIcons);
         }
 
         /// <summary>Tasks performed after rendering the HUD.</summary>
         private void Display_RenderedHud(object sender, RenderedHudEventArgs e)
         {
-            RenderCustomTracker(MConfig.ReplaceTrackerWithForageIcon);
+            RenderCustomTracker(MConfig.ReplaceTrackersWithForageIcons);
         }
 
         /// <summary>Draws the custom tracker to Game1.spriteBatch, imitating code from the Game1.drawHUD method.</summary>
         /// <param name="forageIcon">If true, render the targeted forage object instead of the custom tracker icon.</param>
         private void RenderCustomTracker(bool forageIcon = false)
         {
-            if (!Context.IsPlayerFree || !Game1.player.professions.Contains(17)) //if the player isn't free or doesn't have the Tracker profession
+            if (!Context.IsPlayerFree) //if the world isn't ready or the player isn't free
+                return;
+
+            if (!MConfig.EnableTrackersWithoutProfession && !Game1.player.professions.Contains(17)) //if the player needs to unlock the Tracker profession
                 return;
 
             if (!Game1.currentLocation.IsOutdoors || Game1.eventUp || Game1.farmEvent != null) //if the player is indoors or an event is happening
@@ -157,8 +160,11 @@ namespace CustomTracker
 
         public class ModConfig
         {
+            /// <summary>If true, trackers will be enabled even if the player doesn't have the Tracker profession.</summary>
+            public bool EnableTrackersWithoutProfession = false;
+
             /// <summary>If true, an image of the forage being tracked will be displayed instead of the tracker icon.</summary>
-            public bool ReplaceTrackerWithForageIcon = false;
+            public bool ReplaceTrackersWithForageIcons = false;
 
             /// <summary>If true, trackers will be drawn behind the HUD. If false, they will be drawn in front of the HUD.</summary>
             public bool DrawBehindInterface = false;
