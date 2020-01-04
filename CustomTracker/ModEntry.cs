@@ -13,23 +13,42 @@ namespace CustomTracker
     /// <summary>The mod entry point.</summary>
     public class ModEntry : Mod
     {
-        /*********
-        ** Public methods
-        *********/
+        ModConfig MConfig = null;
+
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
-            helper.Events.Display.RenderedHud += Display_RenderedHud;
+            MConfig = helper.ReadConfig<ModConfig>(); //load the mod's config.json file
+
+            if (MConfig == null)
+                return;
+            
+            if (MConfig.DrawBehindInterface) //if the tracker should be drawn behind the HUD
+            {
+                helper.Events.Display.RenderingHud += Display_RenderingHud; //use the "rendering" event
+            }
+            else //if the tracker should be drawn in front of the HUD
+            {
+                helper.Events.Display.RenderedHud += Display_RenderedHud; //use the "rendered" event
+            }
         }
 
+        /// <summary>Tasks performed before rendering the HUD.</summary>
+        private void Display_RenderingHud(object sender, RenderingHudEventArgs e)
+        {
+            RenderCustomTracker(MConfig.ReplaceTrackerWithForageIcon);
+        }
+
+        /// <summary>Tasks performed after rendering the HUD.</summary>
         private void Display_RenderedHud(object sender, RenderedHudEventArgs e)
         {
-            RenderCustomTracker(); //call the custom tracker render method
+            RenderCustomTracker(MConfig.ReplaceTrackerWithForageIcon);
         }
 
         /// <summary>Draws the custom tracker to Game1.spriteBatch, imitating code from the Game1.drawHUD method.</summary>
-        private void RenderCustomTracker()
+        /// <param name="forageIcon">If true, render the targeted forage object instead of the custom tracker icon.</param>
+        private void RenderCustomTracker(bool forageIcon = false)
         {
             if (!Context.IsPlayerFree || !Game1.player.professions.Contains(17)) //if the player isn't free or doesn't have the Tracker profession
                 return;
@@ -37,27 +56,45 @@ namespace CustomTracker
             if (!Game1.currentLocation.IsOutdoors || Game1.eventUp || Game1.farmEvent != null) //if the player is indoors or an event is happening
                 return;
 
-            Texture2D trackerSheet = Game1.content.Load<Texture2D>("LooseSprites\\CustomTracker"); //load the custom tracker spritesheet
+            Texture2D spritesheet;
+            Rectangle spriteSource;
 
-            //define non-variable values used in the object loop (intended to be more efficient than the original Game1.drawHUD method)
-            Rectangle rectangle = new Rectangle(0, 0, trackerSheet.Width, trackerSheet.Height); //create a rectangle covering the entire tracker spritesheet
+            if (forageIcon)
+            {
+                spritesheet = Game1.objectSpriteSheet; //get the object spritesheet
+            }
+            else
+            {
+                spritesheet = Game1.content.Load<Texture2D>("LooseSprites\\CustomTracker"); //load the custom tracker spritesheet
+            }
+
+            //define the tracker's rendering geometry
             const float scale = 4f; //the intended scale of the sprite
-            Vector2 renderSize = new Vector2((float)rectangle.Width * scale, (float)rectangle.Height * scale); //get the render size of the sprite
 
-            //define minimum and maximum sprite positions for use in "renderPos"
+            //define relative minimum and maximum sprite positions
             Rectangle bounds = Game1.graphics.GraphicsDevice.Viewport.Bounds; //get the boundaries of the screen
             float minX = 8f;
             float minY = 8f;
             float maxX = bounds.Right - 8;
             float maxY = bounds.Bottom - 8;
 
-            //imitate SDV's Game1.drawHUD method to render a custom tracker cursor
+            //imitate SDV's Game1.drawHUD method to render a custom tracker icon
             foreach (KeyValuePair<Vector2, StardewValley.Object> pair in Game1.currentLocation.objects.Pairs)
             {
                 if (((bool)((NetFieldBase<bool, NetBool>)pair.Value.isSpawnedObject) || pair.Value.ParentSheetIndex == 590) && !Utility.isOnScreen(pair.Key * 64f + new Vector2(32f, 32f), 64))
                 {
-                    //removed the original "bounds" definition
-                    Vector2 renderPos = new Vector2();
+                    if (forageIcon) //if this is rendering forage icons
+                    {
+                        spriteSource = GameLocation.getSourceRectForObject(pair.Value.ParentSheetIndex); //get this object's spritesheet source rectangle
+                    }
+                    else //if this is rendering the custom tracker
+                    {
+                        spriteSource = new Rectangle(0, 0, spritesheet.Width, spritesheet.Height); //create a source rectangle covering the entire tracker spritesheet
+                    }
+
+                    Vector2 renderSize = new Vector2((float)spriteSource.Width * scale, (float)spriteSource.Height * scale); //get the render size of the sprite
+
+                    Vector2 trackerRenderPosition = new Vector2();
                     float rotation = 0.0f;
 
                     Vector2 centerOfObject = new Vector2((pair.Key.X * 64) + 32, (pair.Key.Y * 64) + 32); //get the center pixel of the object
@@ -65,58 +102,70 @@ namespace CustomTracker
 
                     if (targetPixel.X > (double)(Game1.viewport.MaxCorner.X - 64)) //if the object is RIGHT of the screen
                     {
-                        renderPos.X = maxX; //use the predefined max X
+                        trackerRenderPosition.X = maxX; //use the predefined max X
                         rotation = 1.570796f;
                         targetPixel.Y = centerOfObject.Y - (renderSize.X / 2); //adjust Y for rotation
                     }
                     else if (targetPixel.X < (double)Game1.viewport.X) //if the object is LEFT of the screen
                     {
-                        renderPos.X = minX; //use the predefined min X
+                        trackerRenderPosition.X = minX; //use the predefined min X
                         rotation = -1.570796f;
                         targetPixel.Y = centerOfObject.Y + (renderSize.X / 2); //adjust Y for rotation
                     }
                     else
-                        renderPos.X = targetPixel.X - (float)Game1.viewport.X; //use the target X (adjusted for viewport)
+                        trackerRenderPosition.X = targetPixel.X - (float)Game1.viewport.X; //use the target X (adjusted for viewport)
 
                     if (targetPixel.Y > (double)(Game1.viewport.MaxCorner.Y - 64)) //if the object is DOWN from the screen
                     {
-                        renderPos.Y = maxY; //use the predefined max Y
+                        trackerRenderPosition.Y = maxY; //use the predefined max Y
                         rotation = 3.141593f;
-                        if (renderPos.X > minX) //if X is NOT min (i.e. this is NOT the bottom left corner)
+                        if (trackerRenderPosition.X > minX) //if X is NOT min (i.e. this is NOT the bottom left corner)
                         {
-                            renderPos.X = Math.Min(centerOfObject.X + (renderSize.X / 2) - (float)Game1.viewport.X, maxX); //adjust X for rotation (using renderPos, clamping to maxX, and adjusting for viewport)
+                            trackerRenderPosition.X = Math.Min(centerOfObject.X + (renderSize.X / 2) - (float)Game1.viewport.X, maxX); //adjust X for rotation (using renderPos, clamping to maxX, and adjusting for viewport)
                         }
                     }
                     else
                     {
-                        renderPos.Y = targetPixel.Y >= (double)Game1.viewport.Y ? targetPixel.Y - (float)Game1.viewport.Y : minY; //if the object is UP from the screen, use the predefined min Y; otherwise, use the target Y (adjusted for viewport)
+                        trackerRenderPosition.Y = targetPixel.Y >= (double)Game1.viewport.Y ? targetPixel.Y - (float)Game1.viewport.Y : minY; //if the object is UP from the screen, use the predefined min Y; otherwise, use the target Y (adjusted for viewport)
                     }
 
-                    if (renderPos.X == minX && renderPos.Y == minY) //if X and Y are min (TOP LEFT corner)
+                    if (trackerRenderPosition.X == minX && trackerRenderPosition.Y == minY) //if X and Y are min (TOP LEFT corner)
                     {
-                        renderPos.Y += rectangle.Height; //adjust DOWN based on sprite size
+                        trackerRenderPosition.Y += spriteSource.Height; //adjust DOWN based on sprite size
                         rotation += 0.7853982f;
                     }
-                    else if (renderPos.X == minX && renderPos.Y == maxY) //if X is min and Y is max (BOTTOM LEFT corner)
+                    else if (trackerRenderPosition.X == minX && trackerRenderPosition.Y == maxY) //if X is min and Y is max (BOTTOM LEFT corner)
                     {
-                        renderPos.X += rectangle.Width; //adjust RIGHT based on sprite size
+                        trackerRenderPosition.X += spriteSource.Width; //adjust RIGHT based on sprite size
                         rotation += 0.7853982f;
                     }
-                    else if (renderPos.X == maxX && renderPos.Y == minY) //if X is max and Y is min (TOP RIGHT corner)
+                    else if (trackerRenderPosition.X == maxX && trackerRenderPosition.Y == minY) //if X is max and Y is min (TOP RIGHT corner)
                     {
-                        renderPos.X -= rectangle.Width; //adjust LEFT based on sprite size
+                        trackerRenderPosition.X -= spriteSource.Width; //adjust LEFT based on sprite size
                         rotation -= 0.7853982f;
                     }
-                    else if (renderPos.X == maxX && renderPos.Y == maxY) //if X and Y are max (BOTTOM RIGHT corner)
+                    else if (trackerRenderPosition.X == maxX && trackerRenderPosition.Y == maxY) //if X and Y are max (BOTTOM RIGHT corner)
                     {
-                        renderPos.Y -= rectangle.Height; //adjust UP based on sprite size
+                        trackerRenderPosition.Y -= spriteSource.Height; //adjust UP based on sprite size
                         rotation -= 0.7853982f;
                     }
 
-                    //removed the original "rectangle" and "renderSize" definitions
-                    Vector2 position2 = Utility.makeSafe(renderPos, renderSize);
-                    Game1.spriteBatch.Draw(trackerSheet, renderPos, new Microsoft.Xna.Framework.Rectangle?(rectangle), Color.White, rotation, new Vector2(2f, 2f), scale, SpriteEffects.None, 1f); //draw the trackerSheet on the game's main sprite batch
+                    Game1.spriteBatch.Draw(spritesheet, trackerRenderPosition, new Rectangle?(spriteSource), Color.White, rotation, new Vector2(2f, 2f), scale, SpriteEffects.None, 1f); //draw the trackerSheet on the game's main sprite batch
                 }
+            }
+        }
+
+        public class ModConfig
+        {
+            /// <summary>If true, an image of the forage being tracked will be displayed instead of the tracker icon.</summary>
+            public bool ReplaceTrackerWithForageIcon = false;
+
+            /// <summary>If true, trackers will be drawn behind the HUD. If false, they will be drawn in front of the HUD.</summary>
+            public bool DrawBehindInterface = false;
+
+            public ModConfig()
+            {
+
             }
         }
     }
