@@ -11,7 +11,7 @@ A mod for the game Stardew Valley, allowing players to use a custom forage track
 1. **Install the latest version of [SMAPI](https://smapi.io/).**
 2. **Install the latest version of [Content Patcher](https://www.nexusmods.com/stardewvalley/mods/1915).**
 3. **Download CustomTracker** from [the Releases page on GitHub](https://github.com/Esca-MMC/CustomTracker/releases), Nexus Mods, or ModDrop.
-4. **Unzip CustomTracker** into your `Stardew Valley\Mods` folder.
+4. **Unzip CustomTracker** into the `Stardew Valley\Mods` folder.
 
 ## Customization
 
@@ -22,7 +22,7 @@ To replace the tracker icon or customize this mod's available settings, see the 
 ### Changing settings
 
 1. **Run the game** using SMAPI. This will generate the mod's **config.json** file in the `Stardew Valley\Mods\CustomTracker` folder.
-2. **Exit the game** and open the **config.json** file. It is a text file, so any text editing program should be able to open it.
+2. **Exit the game** and open the **config.json** file with any text editing program.
 
 The available options are:
 
@@ -34,6 +34,6 @@ DrawBehindInterface | true, **false** | When set to true, the tracker icon will 
 
 ### Customizing the tracker icon
 
-CustomTracker's download includes the `[CP] CustomTracker` folder. This is a content pack for the mod Content Patcher. It loads **tracker.png** into the game and replaces the game's original tracker icon with **blank_cursor.png** to hide it.
+CustomTracker includes the `[CP] CustomTracker` folder, which is a content pack for the mod Content Patcher. It loads **tracker.png** into the game and replaces the game's original tracker icon with **blank_cursor.png** to hide it.
 
-If you want to replace your tracker icon with a new one, simply edit or replace **tracker.png** in the `[CP] CustomTracker\assets` folder.
+To use a different custom tracker icon, edit or replace **tracker.png** in the `[CP] CustomTracker\assets` folder.
