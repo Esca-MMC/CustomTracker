@@ -125,7 +125,7 @@ namespace CustomTracker
                 return;
 
             //define the tracker's rendering geometry
-            const float scale = 4f; //the intended scale of the sprite
+            float scale = MConfig.TrackerPixelScale; //the intended scale of the sprite
 
             //define relative minimum and maximum sprite positions
             Rectangle bounds = Game1.graphics.GraphicsDevice.Viewport.Bounds; //get the boundaries of the screen
@@ -231,6 +231,9 @@ namespace CustomTracker
 
             /// <summary>If true, trackers will be drawn behind the HUD. If false, they will be drawn in front of the HUD.</summary>
             public bool DrawBehindInterface = false;
+
+            /// <summary>The scale at which the tracker's texture(s) will be rendered. The size of each pixel in the original texture is multiplied by this value.</summary>
+            public float TrackerPixelScale = 4f;
 
             public ModConfig()
             {
