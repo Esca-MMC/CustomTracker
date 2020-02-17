@@ -24,7 +24,9 @@ To replace the tracker icon or customize this mod's available settings, see the 
 1. **Run the game** using SMAPI. This will generate the mod's **config.json** file in the `Stardew Valley\Mods\CustomTracker` folder.
 2. **Exit the game** and open the **config.json** file with any text editing program.
 
-The available options are:
+This mod also supports [spacechase0](https://github.com/spacechase0)'s [Generic Mod Config Menu](https://spacechase0.com/mods/stardew-valley/generic-mod-config-menu/) (GMCM). Users with that mod will be able to change Custom Tracker's config.json settings from Stardew's main menu.
+
+The available settings are:
 
 Name | Valid settings | Description
 -----|----------------|------------
