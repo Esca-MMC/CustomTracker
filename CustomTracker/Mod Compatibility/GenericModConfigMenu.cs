@@ -15,15 +15,10 @@ namespace CustomTracker
     {
         public void EnableGMCM(object sender, GameLaunchedEventArgs e)
         {
-            Monitor.Log("HI", LogLevel.Alert);
-
             GenericModConfigMenuAPI api = Helper.ModRegistry.GetApi<GenericModConfigMenuAPI>("spacechase0.GenericModConfigMenu"); //attempt to get GMCM's API instance
 
             if (api == null) //if the API is not available
-            {
-                Monitor.Log("API NOT FOUND???", LogLevel.Alert);
                 return;
-            }
 
             api.RegisterModConfig(ModManifest, () => MConfig = new ModConfig(), () => Helper.WriteConfig(MConfig)); //register "revert to default" and "write" methods for this mod's config
 
