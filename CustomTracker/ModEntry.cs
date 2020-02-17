@@ -10,7 +10,7 @@ using StardewValley;
 
 namespace CustomTracker
 {
-    /// <summary>The mod entry point.</summary>
+    /// <summary>The mod's main class.</summary>
     public partial class ModEntry : Mod
     {
         /// <summary>The "address" of the custom tracker's texture in Stardew's content manager.</summary>
@@ -45,16 +45,11 @@ namespace CustomTracker
             if (MConfig == null) //if loading failed
                 return;
 
+            //register the mod's SMAPI events
+            helper.Events.Display.RenderedHud += Display_RenderedHud;
+            helper.Events.Display.RenderingHud += Display_RenderingHud;
             helper.Events.GameLoop.DayStarted += GameLoop_DayStarted;
-
-            if (MConfig.DrawBehindInterface) //if the tracker should be drawn behind the HUD
-            {
-                helper.Events.Display.RenderingHud += Display_RenderingHud; //use the "rendering" event
-            }
-            else //if the tracker should be drawn in front of the HUD
-            {
-                helper.Events.Display.RenderedHud += Display_RenderedHud; //use the "rendered" event
-            }
+            helper.Events.GameLoop.GameLaunched += EnableGMCM;
         }
     }
 }

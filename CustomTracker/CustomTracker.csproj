@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Methods\RenderCustomTrackers.cs" />
     <Compile Include="Classes\ModConfig.cs" />
+    <Compile Include="Mod Compatibility\GenericModConfigMenu.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SMAPI Events\Display_RenderedHud.cs" />

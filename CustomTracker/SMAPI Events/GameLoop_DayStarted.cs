@@ -10,7 +10,7 @@ using StardewValley;
 
 namespace CustomTracker
 {
-    /// <summary>The mod entry point.</summary>
+    /// <summary>The mod's main class.</summary>
     public partial class ModEntry : Mod
     {
         /// <summary>Tasks performed at the start of each in-game day.</summary>
