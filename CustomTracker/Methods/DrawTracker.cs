@@ -28,7 +28,7 @@ namespace CustomTracker
             if (Utility.isOnScreen(targetTile * 64f + new Vector2(32f, 32f), 64)) //if the target tile is on the player's screen
                 return; //do not track it
 
-            float scale = MConfig.TrackerPixelScale; //get the intended scale of the sprite
+            float scale = Config.TrackerPixelScale; //get the intended scale of the sprite
             Rectangle bounds = Game1.graphics.GraphicsDevice.Viewport.Bounds; //get the boundaries of the screen
 
             //define relative minimum and maximum sprite positions

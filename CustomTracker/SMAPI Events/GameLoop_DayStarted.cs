@@ -16,7 +16,7 @@ namespace CustomTracker
         /// <summary>Tasks performed at the start of each in-game day.</summary>
         private void GameLoop_DayStarted(object sender, DayStartedEventArgs e)
         {
-            if (!MConfig.ReplaceTrackersWithForageIcons) //if the forage icons should NOT be used
+            if (!Config.ReplaceTrackersWithForageIcons) //if the forage icons should NOT be used
             {
                 try
                 {
@@ -31,7 +31,7 @@ namespace CustomTracker
                 }
             }
 
-            if (MConfig.ReplaceTrackersWithForageIcons || Spritesheet == null) //if the forage icons should be used (due to settings OR because the custom tracker failed to load)
+            if (Config.ReplaceTrackersWithForageIcons || Spritesheet == null) //if the forage icons should be used (due to settings OR because the custom tracker failed to load)
             {
                 ForageIconMode = true; //enable forage icon mode
                 Spritesheet = Game1.objectSpriteSheet; //get the object spritesheet

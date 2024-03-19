@@ -16,8 +16,8 @@ namespace CustomTracker
         /// <summary>Tasks performed before rendering the HUD.</summary>
         private void Display_RenderingHud(object sender, RenderingHudEventArgs e)
         {
-            if (MConfig.DrawBehindInterface) //if trackers should be drawn "beneath" the interface
-                RenderCustomTrackers(MConfig.ReplaceTrackersWithForageIcons);
+            if (Config.DrawBehindInterface) //if trackers should be drawn "beneath" the interface
+                RenderCustomTrackers(Config.ReplaceTrackersWithForageIcons);
         }
     }
 }
