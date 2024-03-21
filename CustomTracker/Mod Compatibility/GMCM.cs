@@ -66,7 +66,11 @@ namespace CustomTracker
                     name: () => Helper.Translation.Get("ReplaceTrackersWithForageIcons.Name"),
                     tooltip: () => Helper.Translation.Get("ReplaceTrackersWithForageIcons.Desc"),
                     getValue: () => Config.ReplaceTrackersWithForageIcons,
-                    setValue: value => Config.ReplaceTrackersWithForageIcons = value
+                    setValue: value =>
+                    {
+                        Config.ReplaceTrackersWithForageIcons = value;
+                        ModEntry.Instance.LoadTrackerSprites(); //update sprites based on the new value
+                    }
                 );
 
                 api.AddBoolOption

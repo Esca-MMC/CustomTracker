@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Netcode;
 using StardewModdingAPI;
-using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
 using StardewValley;
+using System;
 
 namespace CustomTracker
 {
     /// <summary>The mod's main class.</summary>
     public partial class ModEntry : Mod
     {
-
-
-
-
         /// <summary>Draw a tracker pointing to the provided tile of the player's current location.</summary>
         /// <param name="targetTile">The coordinates of the tile this tracker icon should point toward.</param>
         /// <remarks>
